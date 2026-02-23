@@ -25,6 +25,66 @@ class CalculatorPage extends StatefulWidget {
 
 class _CalculatorPageState extends State<CalculatorPage> {
   String display = "0";
+  double? firstOperand;
+  String? operator;
+  bool shouldResetDisplay = false;
+
+  // button tap logic handler
+  void handleButtonPress(String value) {
+    setState(() {
+      // if digit pressed
+      if ("0123456789".contains(value)) {
+        if (display == "0" || shouldResetDisplay) {
+          display = value;
+          shouldResetDisplay = false;
+        } else {
+          display += value;
+        }
+      }
+      // if operator pressed
+      else if ("+-×÷".contains(value)) {
+        firstOperand = double.parse(display);
+        operator = value;
+        shouldResetDisplay = true;
+      }
+      // if equals pressed
+      else if (value == "=") {
+        if (firstOperand != null && operator != null) {
+          double secondOperand = double.parse(display);
+          double result = calculate(firstOperand!, secondOperand, operator!);
+          display = formatResult(result);
+          firstOperand = null;
+          operator = null;
+          shouldResetDisplay = true;
+        }
+      }
+    });
+  }
+
+  // perform arithmetic operation
+  double calculate(double a, double b, String op) {
+    switch (op) {
+      case "+":
+        return a + b;
+      case "-":
+        return a - b;
+      case "×":
+        return a * b;
+      case "÷":
+        return a / b;
+      default:
+        return 0;
+    }
+  }
+
+  // remove trailing .0 from whole numbers
+  String formatResult(double result) {
+    if (result == result.toInt()) {
+      return result.toInt().toString();
+    } else {
+      return result.toString();
+    }
+  }
 
   Widget buildButton(String text, {bool isOperator = false}) {
     return Padding(
@@ -51,7 +111,9 @@ class _CalculatorPageState extends State<CalculatorPage> {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(24),
-            onTap: () {},
+            onTap: () {
+              handleButtonPress(text);
+            },
             child: Center(
               child: Text(
                 text,
