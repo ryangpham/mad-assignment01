@@ -171,6 +171,52 @@ class _CalculatorPageState extends State<CalculatorPage> {
     );
   }
 
+  Widget buildRow(List<Widget> children) {
+    return Expanded(child: Row(children: children));
+  }
+
+  Widget buildExpandedButton(
+    String text, {
+    bool isOperator = false,
+    int flex = 1,
+  }) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: isOperator
+                ? const LinearGradient(
+                    colors: [Color(0xFF6A5AE0), Color(0xFF9D70FE)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : const LinearGradient(
+                    colors: [Color(0xFF3E4A5E), Color(0xFF2C3445)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(24),
+              onTap: () => handleButtonPress(text),
+              child: Center(
+                child: Text(
+                  text,
+                  style: const TextStyle(fontSize: 24, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,40 +256,57 @@ class _CalculatorPageState extends State<CalculatorPage> {
 
                   const SizedBox(height: 20),
 
-                  // Buttons Grid
+                  // Buttons
                   Expanded(
                     flex: 2,
-                    child: GridView.count(
-                      crossAxisCount: 4,
-                      childAspectRatio: 1,
-                      physics: const NeverScrollableScrollPhysics(),
+                    child: Column(
                       children: [
-                        buildButton("AC", isOperator: true),
-                        buildButton("C", isOperator: true),
-                        buildButton("%", isOperator: true),
-                        buildButton("÷", isOperator: true),
-                        buildButton("7"),
-                        buildButton("8"),
-                        buildButton("9"),
-                        buildButton("×", isOperator: true),
-                        buildButton("4"),
-                        buildButton("5"),
-                        buildButton("6"),
-                        buildButton("-", isOperator: true),
-                        buildButton("1"),
-                        buildButton("2"),
-                        buildButton("3"),
-                        buildButton("+", isOperator: true),
-                        buildButton("0"),
-                        buildButton("."),
-                        buildButton("=", isOperator: true),
+                        // Row 1
+                        buildRow([
+                          buildExpandedButton("AC", isOperator: true),
+                          buildExpandedButton("C", isOperator: true),
+                          buildExpandedButton("%", isOperator: true),
+                          buildExpandedButton("÷", isOperator: true),
+                        ]),
+
+                        // Row 2
+                        buildRow([
+                          buildExpandedButton("7"),
+                          buildExpandedButton("8"),
+                          buildExpandedButton("9"),
+                          buildExpandedButton("×", isOperator: true),
+                        ]),
+
+                        // Row 3
+                        buildRow([
+                          buildExpandedButton("4"),
+                          buildExpandedButton("5"),
+                          buildExpandedButton("6"),
+                          buildExpandedButton("-", isOperator: true),
+                        ]),
+
+                        // Row 4
+                        buildRow([
+                          buildExpandedButton("1"),
+                          buildExpandedButton("2"),
+                          buildExpandedButton("3"),
+                          buildExpandedButton("+", isOperator: true),
+                        ]),
+
+                        // Row 5
+                        buildRow([
+                          buildExpandedButton("0", flex: 2),
+                          buildExpandedButton("."),
+                          buildExpandedButton("=", isOperator: true),
+                        ]),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            // Floating theme toggle button (top right)
+
+            // theme toggle
             Positioned(
               top: 10,
               right: 10,
