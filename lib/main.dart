@@ -28,10 +28,13 @@ class _CalculatorPageState extends State<CalculatorPage> {
   double? firstOperand;
   String? operator;
   bool shouldResetDisplay = false;
+  String? errorMessage;
 
   // button tap logic handler
   void handleButtonPress(String value) {
     setState(() {
+      // clear previous error when user presses button
+      errorMessage = null;
       // if digit pressed
       if ("0123456789".contains(value)) {
         if (display == "0" || shouldResetDisplay) {
@@ -60,14 +63,27 @@ class _CalculatorPageState extends State<CalculatorPage> {
       }
       // if equals pressed
       else if (value == "=") {
-        if (firstOperand != null && operator != null) {
-          double secondOperand = double.parse(display);
-          double result = calculate(firstOperand!, secondOperand, operator!);
-          display = formatResult(result);
+        // check for incomplete operation
+        if (firstOperand == null || operator == null) {
+          errorMessage = "Error: Incomplete input";
+          return;
+        }
+
+        double secondOperand = double.parse(display);
+        // check for division by zero
+        if (operator == "÷" && secondOperand == 0) {
+          errorMessage = "Error: Division by zero";
+          display = "0";
           firstOperand = null;
           operator = null;
-          shouldResetDisplay = true;
+          return;
         }
+
+        double result = calculate(firstOperand!, secondOperand, operator!);
+        display = formatResult(result);
+        firstOperand = null;
+        operator = null;
+        shouldResetDisplay = true;
       }
     });
   }
@@ -156,12 +172,18 @@ class _CalculatorPageState extends State<CalculatorPage> {
                     color: const Color(0xFF111827),
                   ),
                   child: Text(
-                    display,
-                    style: const TextStyle(
-                      fontSize: 60,
-                      color: Color(0xFF69F0AE),
-                      fontWeight: FontWeight.w500,
-                    ),
+                    errorMessage ?? display,
+                    style: errorMessage != null
+                        ? const TextStyle(
+                            fontSize: 40,
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                          )
+                        : const TextStyle(
+                            fontSize: 60,
+                            color: Color(0xFF69F0AE),
+                            fontWeight: FontWeight.w500,
+                          ),
                   ),
                 ),
               ),
