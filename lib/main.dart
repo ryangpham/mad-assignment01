@@ -41,6 +41,17 @@ class _CalculatorPageState extends State<CalculatorPage> {
           display += value;
         }
       }
+      // clear current input
+      else if (value == "C") {
+        display = "0";
+      }
+      // clear all
+      else if (value == "AC") {
+        display = "0";
+        firstOperand = null;
+        operator = null;
+        shouldResetDisplay = false;
+      }
       // if operator pressed
       else if ("+-×÷".contains(value)) {
         firstOperand = double.parse(display);
