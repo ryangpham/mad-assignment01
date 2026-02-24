@@ -4,20 +4,38 @@ void main() {
   runApp(const CalculatorApp());
 }
 
-class CalculatorApp extends StatelessWidget {
+class CalculatorApp extends StatefulWidget {
   const CalculatorApp({super.key});
 
   @override
+  State<CalculatorApp> createState() => _CalculatorAppState();
+}
+
+class _CalculatorAppState extends State<CalculatorApp> {
+  bool isDarkMode = true;
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: CalculatorPage(),
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: CalculatorPage(
+        onToggleTheme: () {
+          setState(() {
+            isDarkMode = !isDarkMode;
+          });
+        },
+      ),
     );
   }
 }
 
 class CalculatorPage extends StatefulWidget {
-  const CalculatorPage({super.key});
+  final VoidCallback onToggleTheme;
+
+  const CalculatorPage({super.key, required this.onToggleTheme});
 
   @override
   State<CalculatorPage> createState() => _CalculatorPageState();
@@ -156,71 +174,90 @@ class _CalculatorPageState extends State<CalculatorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1F2633),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              // Display
-              Expanded(
-                child: Container(
-                  alignment: Alignment.bottomRight,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: const Color(0xFF111827),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  // Display
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.bottomRight,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: Theme.of(context).cardColor,
+                      ),
+                      child: Text(
+                        errorMessage ?? display,
+                        style: errorMessage != null
+                            ? const TextStyle(
+                                fontSize: 40,
+                                color: Colors.red,
+                                fontWeight: FontWeight.w500,
+                              )
+                            : const TextStyle(
+                                fontSize: 60,
+                                color: Color(0xFF69F0AE),
+                                fontWeight: FontWeight.w500,
+                              ),
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    errorMessage ?? display,
-                    style: errorMessage != null
-                        ? const TextStyle(
-                            fontSize: 40,
-                            color: Colors.red,
-                            fontWeight: FontWeight.w500,
-                          )
-                        : const TextStyle(
-                            fontSize: 60,
-                            color: Color(0xFF69F0AE),
-                            fontWeight: FontWeight.w500,
-                          ),
+
+                  const SizedBox(height: 20),
+
+                  // Buttons Grid
+                  Expanded(
+                    flex: 2,
+                    child: GridView.count(
+                      crossAxisCount: 4,
+                      childAspectRatio: 1,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        buildButton("AC", isOperator: true),
+                        buildButton("C", isOperator: true),
+                        buildButton("%", isOperator: true),
+                        buildButton("÷", isOperator: true),
+                        buildButton("7"),
+                        buildButton("8"),
+                        buildButton("9"),
+                        buildButton("×", isOperator: true),
+                        buildButton("4"),
+                        buildButton("5"),
+                        buildButton("6"),
+                        buildButton("-", isOperator: true),
+                        buildButton("1"),
+                        buildButton("2"),
+                        buildButton("3"),
+                        buildButton("+", isOperator: true),
+                        buildButton("0"),
+                        buildButton("."),
+                        buildButton("=", isOperator: true),
+                      ],
+                    ),
                   ),
+                ],
+              ),
+            ),
+            // Floating theme toggle button (top right)
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Material(
+                color: Colors.transparent,
+                child: IconButton(
+                  icon: const Icon(Icons.brightness_6),
+                  onPressed: widget.onToggleTheme,
+                  tooltip: 'Toggle Light/Dark Mode',
+                  splashRadius: 24,
                 ),
               ),
-
-              const SizedBox(height: 20),
-
-              // Buttons Grid
-              Expanded(
-                flex: 2,
-                child: GridView.count(
-                  crossAxisCount: 4,
-                  childAspectRatio: 1,
-                  children: [
-                    buildButton("AC", isOperator: true),
-                    buildButton("C", isOperator: true),
-                    buildButton("%", isOperator: true),
-                    buildButton("÷", isOperator: true),
-                    buildButton("7"),
-                    buildButton("8"),
-                    buildButton("9"),
-                    buildButton("×", isOperator: true),
-                    buildButton("4"),
-                    buildButton("5"),
-                    buildButton("6"),
-                    buildButton("-", isOperator: true),
-                    buildButton("1"),
-                    buildButton("2"),
-                    buildButton("3"),
-                    buildButton("+", isOperator: true),
-                    buildButton("0"),
-                    buildButton("."),
-                    buildButton("=", isOperator: true),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
